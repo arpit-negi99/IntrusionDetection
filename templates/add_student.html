@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Add Student - Classroom Intrusion Detection System{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2><i class="fas fa-user-plus"></i> Add New Student</h2>
+    <p>Register a new student for facial recognition</p>
+
+    <div class="row" style="display: flex; flex-wrap: wrap; gap: 2rem; margin-top: 2rem;">
+        <div style="flex: 1; min-width: 300px;">
+            <div style="background: rgba(52, 152, 219, 0.1); padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem;">
+                <h3 style="margin-bottom: 1rem; color: #3498db;">
+                    <i class="fas fa-info-circle"></i> Instructions
+                </h3>
+                <ul style="list-style-type: none; padding-left: 0;">
+                    <li style="margin-bottom: 0.8rem; display: flex; align-items: flex-start; gap: 10px;">
+                        <div style="color: #3498db; margin-top: 2px;">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div>Enter the student's full name in the form</div>
+                    </li>
+                    <li style="margin-bottom: 0.8rem; display: flex; align-items: flex-start; gap: 10px;">
+                        <div style="color: #3498db; margin-top: 2px;">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div>The system will capture multiple images of the student's face</div>
+                    </li>
+                    <li style="margin-bottom: 0.8rem; display: flex; align-items: flex-start; gap: 10px;">
+                        <div style="color: #3498db; margin-top: 2px;">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div>Make sure the student is properly positioned in front of the camera</div>
+                    </li>
+                    <li style="margin-bottom: 0.8rem; display: flex; align-items: flex-start; gap: 10px;">
+                        <div style="color: #3498db; margin-top: 2px;">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div>Keep the lighting good and ensure a clear facial view</div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div style="flex: 1; min-width: 300px;">
+            <form method="post">
+                <div class="form-group">
+                    <label for="student_name">Student Name</label>
+                    <input type="text" class="form-control" id="student_name" name="student_name" 
+                           placeholder="Enter full name" required>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-camera"></i> Capture Images
+                </button>
+            </form>
+
+            <div style="margin-top: 2rem;">
+                <a href="{{ url_for('index') }}" class="btn btn-primary" style="background: #7f8c8d;">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

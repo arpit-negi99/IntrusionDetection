@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Classroom Intrusion Detection System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 2rem;
+    }
+
+    .camera-feed {
+        position: relative;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+        background: #000;
+        min-height: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .camera-feed img {
+        width: 100%;
+        height: auto;
+    }
+
+    .camera-feed .camera-status {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: rgba(0, 0, 0, 0.5);
+        color: white;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .camera-controls {
+        display: flex;
+        justify-content: center;
+        margin-top: 1rem;
+    }
+
+    .camera-offline {
+        color: #ecf0f1;
+        text-align: center;
+        padding: 3rem 0;
+    }
+
+    .camera-offline i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        color: #bdc3c7;
+    }
+
+    .attendance-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .attendance-table th, .attendance-table td {
+        padding: 12px 15px;
+        text-align: left;
+    }
+
+    .attendance-table thead {
+        background-color: #3498db;
+        color: white;
+    }
+
+    .attendance-table tr:nth-child(even) {
+        background-color: rgba(236, 240, 241, 0.5);
+    }
+
+    .attendance-table tr:hover {
+        background-color: rgba(189, 195, 199, 0.3);
+    }
+
+    .status-present {
+        color: #27ae60;
+        font-weight: 500;
+    }
+
+    .status-absent {
+        color: #e74c3c;
+        font-weight: 500;
+    }
+
+    .dashboard-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2><i class="fas fa-tachometer-alt"></i> Security Dashboard</h2>
+    <p>Monitoring classroom attendance and security</p>
+
+    <div class="stats-grid">
+        <div class="stat-card" style="border-bottom: 5px solid #27ae60;">
+            <div class="icon" style="color: #27ae60;">
+                <i class="fas fa-user-check"></i>
+            </div>
+            <div class="value">{{ attendance.present }}</div>
+            <div class="label">Present Students</div>
+        </div>
+
+        <div class="stat-card" style="border-bottom: 5px solid #e74c3c;">
+            <div class="icon" style="color: #e74c3c;">
+                <i class="fas fa-user-times"></i>
+            </div>
+            <div class="value">{{ attendance.absent }}</div>
+            <div class="label">Absent Students</div>
+        </div>
+
+        <div class="stat-card" style="border-bottom: 5px solid #3498db;">
+            <div class="icon" style="color: #3498db;">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="value">{{ attendance.total }}</div>
+            <div class="label">Total Students</div>
+        </div>
+
+        <div class="stat-card" style="border-bottom: 5px solid {% if camera_on %}#27ae60{% else %}#e74c3c{% endif %};">
+            <div class="icon" style="color: {% if camera_on %}#27ae60{% else %}#e74c3c{% endif %};">
+                <i class="fas fa-video{% if not camera_on %}-slash{% endif %}"></i>
+            </div>
+            <div class="value">{{ 'Active' if camera_on else 'Off' }}</div>
+            <div class="label">Camera Status</div>
+        </div>
+    </div>
+
+    <div class="dashboard-actions">
+        <a href="{{ url_for('add_student') }}" class="btn btn-primary">
+            <i class="fas fa-user-plus"></i> Add Student
+        </a>
+    </div>
+
+    <div class="dashboard-grid">
+        <div>
+            <div class="camera-feed">
+                {% if camera_on %}
+                <img src="{{ url_for('video_feed') }}" alt="Camera Feed">
+                <div class="camera-status">
+                    <i class="fas fa-circle" style="color: #27ae60;"></i> Live
+                </div>
+                {% else %}
+                <div class="camera-offline">
+                    <i class="fas fa-video-slash"></i>
+                    <p>Camera is currently offline</p>
+                    <p>Start the camera to begin monitoring</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="camera-controls">
+                {% if camera_on %}
+                <form action="{{ url_for('stop_camera') }}" method="post">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-stop-circle"></i> Stop Camera
+                    </button>
+                </form>
+                {% else %}
+                <form action="{{ url_for('start_camera') }}" method="post">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-play-circle"></i> Start Camera
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+
+        <div>
+            <h3 style="margin-bottom: 1rem; color: #3498db;">
+                <i class="fas fa-clipboard-list"></i> Attendance
+            </h3>
+            <div style="max-height: 400px; overflow-y: auto;">
+                <table class="attendance-table">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Status</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in attendance.students %}
+                        <tr>
+                            <td>{{ student[0] }}</td>
+                            <td class="{% if student[1] == 'Present' %}status-present{% else %}status-absent{% endif %}">
+                                <i class="fas {% if student[1] == 'Present' %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i>
+                                {{ student[1] }}
+                            </td>
+                            <td>{{ student[2] if student[2] else '-' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
